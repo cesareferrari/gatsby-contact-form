@@ -1,11 +1,11 @@
 const nodemailer = require("nodemailer")
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
+  host: process.env.MAIL_HOST,
   port: 587,
   auth: {
-    user: "celine.effertz60@ethereal.email",
-    pass: "AwtNww3NzCujp8UX9V"
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS
   }
 })
 
@@ -16,9 +16,9 @@ exports.handler = async (event, context) => {
   let email = requestParams.email
 
   const info = await transporter.sendMail({
-    from: "Gatsby contact form <gatsby_contact@example.com>",
+    from: "Gatsby contact form test <gatsby_contact@example.com>",
     to: `testing@example.com`,
-    subject: "New Contact form submission",
+    subject: "New Contact form submission from Gatsby",
     html: `<p>Email from: ${email}</p>`
   }) 
 
