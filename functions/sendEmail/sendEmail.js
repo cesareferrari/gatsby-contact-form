@@ -1,5 +1,23 @@
 const nodemailer = require("nodemailer")
 
+const template = (name, email, message) => {
+  return (
+    `
+    <div>
+      <h2>New Contact form submission from Gatsby Contact form test</h2>
+
+      <h3>Name: ${name}</h3>
+      <h3>Email: ${email}</h3>
+
+      <h3>Message</h3>
+      <div>
+        ${message}
+      </div>
+    </div>
+    `
+  )
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: 587,
@@ -12,14 +30,16 @@ const transporter = nodemailer.createTransport({
 exports.handler = async (event, context) => {
   console.log(`Event body: ${event.body}`)
 
-  let requestParams = JSON.parse(event.body)
-  let email = requestParams.email
+  let params = JSON.parse(event.body)
+  let name = params.name
+  let email = params.email
+  let message = params.message
 
   const info = await transporter.sendMail({
-    from: "Gatsby contact form test <gatsby_contact@example.com>",
-    to: `testing@example.com`,
-    subject: "New Contact form submission from Gatsby",
-    html: `<p>Email from: ${email}</p>`
+    from: `${name} <${email}>`,
+    to: `gatsby-contact-form@example.com`,
+    subject: `New Contact form submission from ${name}`,
+    html: template(name, email, message)
   }) 
 
   return {
