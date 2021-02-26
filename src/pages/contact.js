@@ -56,6 +56,7 @@ const ContactPage = () => {
       })
       .catch(err => {
         console.log(err.response.status)
+        console.log(JSON.stringify(err))
         setData({
           ...data,
           buttonText: "Failed to send",
