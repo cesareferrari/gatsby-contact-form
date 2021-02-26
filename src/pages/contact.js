@@ -34,7 +34,7 @@ const ContactPage = () => {
     })
 
     axios
-      .post("/api/sendmail", data)
+      .post("https://compassionate-jepsen-db9a2b.netlify.app/api/sendmail", data)
       .then(res => {
         if (res.data.result !== "success") {
           setData({
