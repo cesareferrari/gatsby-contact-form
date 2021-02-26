@@ -1,17 +1,85 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "gatsby"
-import handleSubmit from "../utils/handle-submit"
-import useForm from "../utils/use-form"
+import axios from "axios"
+// import handleSubmit from "../utils/handle-submit"
+// import useForm from "../utils/use-form"
 
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 
 const ContactPage = () => {
-  const { values, updateValue } = useForm({
+  const [data, setData] = useState({
     name: "",
     email: "",
-    message: ""
+    message: "",
+    sent: false,
+    buttonText: "Submit",
+    err: ""
   })
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    setData({
+      ...data,
+      [name]: value
+    })
+  }
+
+  const formSubmit = e => {
+    e.preventDefault()
+
+    setData({
+      ...data,
+      buttonText: "Sending..."
+    })
+
+    axios
+      .post("/api/sendmail", data)
+      .then(res => {
+        if (res.data.result !== "success") {
+          setData({
+            ...data,
+            buttonText: "Failed to send",
+            sent: false,
+            err: "fail"
+          })
+          setTimeout(() => resetForm(), 6000)
+        } else {
+          setData({
+            ...data,
+            sent: true,
+            buttonText: "Sent",
+            err: "success"
+          })
+          setTimeout(() => resetForm(), 6000)
+        }
+      })
+      .catch(err => {
+        console.log(err.response.status)
+        setData({
+          ...data,
+          buttonText: "Failed to send",
+          err: "fail"
+        })
+      })
+  }
+
+  const resetForm = () => {
+    setData({
+      name: "",
+      email: "",
+      message: "",
+      sent: false,
+      buttonText: "Submit",
+      err: ""
+    })
+  }
+
+  // const { values, updateValue } = useForm({
+  //   name: "",
+  //   email: "",
+  //   message: ""
+  // })
 
   return (
     <Layout>
@@ -19,7 +87,9 @@ const ContactPage = () => {
       <h1>Contact page</h1>
       <p>Fill out this form</p>
 
-      <form onSubmit={event => handleSubmit(event, values)}>
+      {/*       <form onSubmit={event => handleSubmit(event, values)}> */}
+
+      <form>
         <p>
           <label htmlFor="name">
             Name
@@ -27,8 +97,8 @@ const ContactPage = () => {
               type="text"
               name="name"
               id="name"
-              value={values.name}
-              onChange={updateValue}
+              value={data.name}
+              onChange={handleChange}
             />
           </label>
         </p>
@@ -39,8 +109,8 @@ const ContactPage = () => {
               type="text"
               name="email"
               id="email"
-              value={values.email}
-              onChange={updateValue}
+              value={data.email}
+              onChange={handleChange}
             />
           </label>
         </p>{" "}
@@ -50,13 +120,13 @@ const ContactPage = () => {
             <textarea
               name="message"
               id="message"
-              value={values.message}
-              onChange={updateValue}
+              value={data.message}
+              onChange={handleChange}
             />
           </label>
         </p>{" "}
         <p>
-          <input type="submit" value="Submit" />
+          <input type="submit" value={data.buttonText} onClick={formSubmit} />
         </p>
       </form>
 

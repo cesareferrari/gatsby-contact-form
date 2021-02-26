@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-exports.handler = async (event, context) => {
+exports.handler = (event, context, callback) => {
   console.log(`Event body: ${event.body}`)
 
   let params = JSON.parse(event.body)
@@ -35,15 +35,21 @@ exports.handler = async (event, context) => {
   let email = params.email
   let message = params.message
 
-  const info = await transporter.sendMail({
+  transporter.sendMail({
     from: `${name} <${email}>`,
     to: `gatsby-contact-form@example.com`,
     subject: `New Contact form submission from ${name}`,
     html: template(name, email, message)
+  }, function(error, info) {
+    if (error) {
+      callback(error)
+    } else {
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify({
+          "result": "success"
+        })
+      })
+    }
   }) 
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: "Success sending email" })
-  }
 }
